@@ -761,7 +761,8 @@ addEventListener('blur', ()=>held.clear());
 
 /* ---------- 移动端触屏支持 ---------- */
 /* 触屏判定：粗指针设备或支持触摸即启用虚拟按键（与键盘共用 held 集合，幽灵重演逻辑不变） */
-const IS_TOUCH = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+const IS_TOUCH = matchMedia('(pointer: coarse)').matches ||
+                 (navigator.maxTouchPoints > 0 && matchMedia('(hover: none)').matches);
 if (IS_TOUCH){
   document.body.classList.add('touch');
   const home = document.querySelector('.homePrompt');
