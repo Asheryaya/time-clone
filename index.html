@@ -1344,6 +1344,14 @@ function drawEyes(px, py, face){
 
 requestAnimationFrame(frame);
 
+/* 手机端：进入页面自动开始（跳过主页）；横屏锁定挂在首次触摸（见 IS_TOUCH 块） */
+if (IS_TOUCH){
+  stats = { attempts:1, banks:0, startAt:performance.now() };
+  loadLevel(0); mode = 'play';
+  overlayEl.classList.remove('title-mode');
+  overlayEl.classList.add('hidden');
+}
+
 /* 只读调试探针 + 隐藏跳关钩子（自动化测试 / 后续迭代用） */
 window.__tc = () => ({
   mode,
