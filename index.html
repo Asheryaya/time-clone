@@ -790,7 +790,7 @@ const IS_TOUCH = matchMedia('(pointer: coarse)').matches ||
 if (IS_TOUCH){
   document.body.classList.add('touch');
   const home = document.querySelector('.homePrompt');
-  if (home) home.textContent = '—— 点击屏幕 开始实验 · 建议横屏 ——';
+  if (home) home.textContent = '—— 点击屏幕 自动横屏并开始实验 ——';
   // 虚拟按键：按住 = held.add，松开/滑出 = held.delete（pointerleave 防手指滑出按钮卡键）
   const bindBtn = (id, act) => {
     const el = document.getElementById(id);
@@ -811,6 +811,14 @@ if (IS_TOUCH){
     e.preventDefault(); muted = !muted; flashTip(muted ? '已静音' : '声音开启');
   });
   document.getElementById('touchUI').addEventListener('contextmenu', e => e.preventDefault());
+  /* 进入页面后首次触摸即全屏并锁定横屏（横屏锁定必须由用户手势触发，首次触摸是最早时机） */
+  const lockLandscape = () => {
+    removeEventListener('pointerdown', lockLandscape, true);
+    const de = document.documentElement;
+    const p = de.requestFullscreen ? de.requestFullscreen().catch(()=>{}) : Promise.resolve();
+    p.then(()=>{ try{ screen.orientation.lock('landscape').catch(()=>{}); }catch(err){} });
+  };
+  addEventListener('pointerdown', lockLandscape, true);
 }
 /* 主页 / 通关页：点击（触屏或鼠标）任意处开始，等效按回车 */
 overlayEl.addEventListener('pointerdown', e => {
