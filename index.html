@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>时痕 · TIME ECHO</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -139,6 +142,17 @@
     #tClone { width:50px; height:50px; font-size:12px; }
     #tReset, #tMute { width:40px; height:40px; font-size:14px; }
   }
+  /* 手机竖屏时遮挡并提示横屏游玩 */
+  #rotateTip {
+    position:fixed; inset:0; z-index:60; display:none;
+    flex-direction:column; align-items:center; justify-content:center; gap:18px;
+    background:rgba(10,14,31,.93); color:#cfd6ff;
+    font-size:16px; letter-spacing:.15em; pointer-events:auto;
+  }
+  #rotateTip svg { width:64px; height:64px; animation:rot 1.8s ease-in-out infinite; }
+  #rotateTip em { font-style:normal; font-size:12px; color:#8a93c4; letter-spacing:.1em; }
+  @keyframes rot { 0%,30% { transform:rotate(0); } 70%,100% { transform:rotate(-90deg); } }
+  @media (orientation: portrait) { body.touch #rotateTip { display:flex; } }
 </style>
 </head>
 <body>
@@ -190,6 +204,16 @@
     <button class="tBtn" id="tClone" aria-label="凝固克隆">克隆</button>
     <button class="tBtn" id="tJump" aria-label="跳跃">跳</button>
   </div>
+</div>
+<div id="rotateTip">
+  <svg viewBox="0 0 64 64" fill="none" stroke-linecap="round">
+    <rect x="27" y="8" width="14" height="36" rx="3" stroke="#8fa3ff" stroke-width="3"/>
+    <circle cx="34" cy="38" r="1.6" fill="#8fa3ff" stroke="none"/>
+    <path d="M46 44a16 16 0 1 0-4-15" stroke="#ffd76a" stroke-width="3"/>
+    <path d="M40 22l2.5 6.5 7-2" stroke="#ffd76a" stroke-width="3"/>
+  </svg>
+  请横屏游玩
+  <em>旋转手机获得最佳体验</em>
 </div>
 
 <script>
@@ -792,6 +816,12 @@ if (IS_TOUCH){
 overlayEl.addEventListener('pointerdown', e => {
   if (mode !== 'title' && mode !== 'win') return;
   e.preventDefault();
+  /* 手机：全屏并尽量锁定横屏（iOS 不支持锁定时由竖屏提示遮罩兜底） */
+  if (IS_TOUCH){
+    const de = document.documentElement;
+    const p = de.requestFullscreen ? de.requestFullscreen().catch(()=>{}) : Promise.resolve();
+    p.then(()=>{ try{ screen.orientation.lock('landscape').catch(()=>{}); }catch(err){} });
+  }
   stats = { attempts:1, banks:0, startAt:performance.now() };
   loadLevel(0); mode = 'play';
   overlayEl.classList.remove('title-mode');
